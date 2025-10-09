@@ -1,0 +1,233 @@
+<div class="min-h-screen flex flex-col">
+  <app-header></app-header>
+  
+  <main class="flex-1 px-4 py-8">
+    <!-- Hero Section -->
+    <div class="text-center mb-12">
+      <div class="w-24 h-24 bg-white/90 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-xl">
+        <svg class="w-12 h-12 text-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+        </svg>
+      </div>
+      
+      <h1 class="text-3xl font-bold text-white mb-4">
+        Upload your Data
+      </h1>
+      
+      <!-- User Email Display -->
+      <div *ngIf="userEmail" class="mb-4">
+        <p class="text-white/90 text-sm">
+          Logged in as: <span class="font-semibold text-cyan">{{ userEmail }}</span>
+        </p>
+      </div>
+      
+      <p class="text-white/80 text-lg mb-8 max-w-sm mx-auto">
+        Upload your Health app screenshots and track your progress with beautiful visualizations. Integrated with Clienta app.
+      </p>
+    </div>
+
+    <!-- Quick Stats Preview -->
+    <div class="bg-gradient-to-br from-cyan/95 to-dark-cyan/90 backdrop-blur-sm rounded-2xl shadow-xl border border-cyan/30 p-6 text-white mb-8">
+      <h2 class="text-xl font-semibold text-white mb-4 text-center flex items-center justify-center">
+        <svg class="w-6 h-6 text-white mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+        </svg>
+        Calories Overview
+      </h2>
+      <!-- Loading State -->
+      <div *ngIf="isLoading" class="flex items-center justify-center py-8">
+        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
+        <span class="ml-2 text-white/80">Loading...</span>
+      </div>
+
+      <!-- No Data State -->
+      <div *ngIf="!isLoading && healthData.length === 0" class="text-center py-8">
+        <div class="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
+          <svg class="w-8 h-8 text-white/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+          </svg>
+        </div>
+        <p class="text-white/80">No calories data yet</p>
+        <p class="text-white/60 text-sm">Upload your first fitness screenshot to start tracking calories</p>
+      </div>
+
+      <!-- Real Data State -->
+      <div *ngIf="!isLoading && healthData.length > 0" class="grid grid-cols-2 gap-4">
+        <div class="bg-white/20 backdrop-blur-sm rounded-xl p-4 text-center shadow-lg border border-white/30">
+          <div class="text-2xl font-bold text-white mb-1">{{ getTotalCalories() | number:'1.0-0' }}</div>
+          <div class="text-sm text-white/80">Total Calories</div>
+        </div>
+        <div class="bg-white/20 backdrop-blur-sm rounded-xl p-4 text-center shadow-lg border border-white/30">
+          <div class="text-2xl font-bold text-white mb-1">{{ getAverageCalories() | number:'1.0-0' }}</div>
+          <div class="text-sm text-white/80">Average Calories</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="space-y-4">
+      <button 
+        (click)="goToUpload()"
+        class="w-full btn-primary text-lg py-4 flex items-center justify-center space-x-2">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+        </svg>
+        <span>Upload Fitness Data</span>
+      </button>
+      
+      <button 
+        (click)="goToDashboard()"
+        class="w-full btn-secondary text-lg py-4 flex items-center justify-center space-x-2">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+        </svg>
+        <span>View Progress</span>
+      </button>
+    </div>
+
+
+    <!-- Features -->
+    <div class="mt-12 space-y-6">
+      <h3 class="text-xl font-semibold text-white text-center mb-6">How to Upload?</h3>
+      
+      <div class="space-y-4">
+        <div class="flex items-start space-x-4">
+          <div class="w-10 h-10 bg-gradient-to-br from-cyan/30 to-dark-cyan/40 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg">
+            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+            </svg>
+          </div>
+          <div>
+            <h4 class="font-semibold text-white mb-1">Quick & Easy Upload</h4>
+            <p class="text-white/80 text-sm">Just upload a screenshot and we'll extract all your health data automatically</p>
+          </div>
+        </div>
+        
+        <div class="flex items-start space-x-4">
+          <div class="w-10 h-10 bg-gradient-to-br from-dark-cyan/30 to-cyan/40 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg">
+            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+            </svg>
+          </div>
+          <div>
+            <h4 class="font-semibold text-white mb-1">Progress Tracking</h4>
+            <p class="text-white/80 text-sm">Track your progress over time per upload with insights</p>
+          </div>
+        </div>
+        
+        <div class="flex items-start space-x-4">
+          <div class="w-10 h-10 bg-gradient-to-br from-grey/30 to-dark-grey/40 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg">
+            <svg class="w-5 h-5 text-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+            </svg>
+          </div>
+          <div>
+            <h4 class="font-semibold text-white mb-1">No Duplications</h4>
+            <p class="text-white/80 text-sm">Dont Upload the same screenshot. Seamlessly integrated with Clienta app for a unified experience</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sample Screenshots Section -->
+      <div class="bg-gradient-to-r from-dark-grey/90 to-grey/80 backdrop-blur-sm rounded-2xl shadow-xl border border-grey/30 p-8 text-white">
+        <h2 class="text-2xl font-semibold text-white mb-6 text-center flex items-center justify-center">
+          <svg class="w-7 h-7 text-cyan mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+          </svg>
+          Sample Screenshots
+        </h2>
+        
+        <p class="text-white/80 text-center mb-8 text-lg">
+          Upload screenshots like these from your fitness apps to automatically extract your health data
+        </p>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <!-- Sample 1: Apple Health -->
+          <div class="bg-white/10 rounded-xl p-6 text-center hover:bg-white/15 transition-all duration-300">
+            <div class="w-full h-48 bg-gradient-to-br from-blue-500/20 to-blue-600/30 rounded-lg mb-4 overflow-hidden shadow-lg">
+              <img 
+                src="assets/images/samples/apple-health-sample.jpg" 
+                alt="Apple Health Screenshot"
+                class="w-full h-full object-cover rounded-lg"
+                onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+              />
+              <div class="w-full h-full flex items-center justify-center" style="display: none;">
+                <div class="text-center">
+                  <div class="w-16 h-16 bg-blue-500 rounded-full mx-auto mb-3 flex items-center justify-center">
+                    <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                    </svg>
+                  </div>
+                  <p class="text-sm text-white/80 font-medium">Apple Health</p>
+                </div>
+              </div>
+            </div>
+            <h4 class="font-semibold text-white mb-2 text-lg">Apple Health</h4>
+            <p class="text-white/70 text-sm">Steps: 8,234 | Calories: 1,586</p>
+          </div>
+
+          <!-- Sample 2: Fitbit -->
+          <div class="bg-white/10 rounded-xl p-6 text-center hover:bg-white/15 transition-all duration-300">
+            <div class="w-full h-48 bg-gradient-to-br from-green-500/20 to-green-600/30 rounded-lg mb-4 overflow-hidden shadow-lg">
+              <img 
+                src="assets/images/samples/fitbit-sample.jpg" 
+                alt="Fitbit Screenshot"
+                class="w-full h-full object-cover rounded-lg"
+                onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+              />
+              <div class="w-full h-full flex items-center justify-center" style="display: none;">
+                <div class="text-center">
+                  <div class="w-16 h-16 bg-green-500 rounded-full mx-auto mb-3 flex items-center justify-center">
+                    <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                    </svg>
+                  </div>
+                  <p class="text-sm text-white/80 font-medium">Fitbit</p>
+                </div>
+              </div>
+            </div>
+            <h4 class="font-semibold text-white mb-2 text-lg">Fitbit App</h4>
+            <p class="text-white/70 text-sm">Steps: 12,456 | Calories: 2,340</p>
+          </div>
+
+          <!-- Sample 3: Samsung Health -->
+          <div class="bg-white/10 rounded-xl p-6 text-center hover:bg-white/15 transition-all duration-300">
+            <div class="w-full h-48 bg-gradient-to-br from-purple-500/20 to-purple-600/30 rounded-lg mb-4 overflow-hidden shadow-lg">
+              <img 
+                src="assets/images/samples/samsung-health-sample.jpg" 
+                alt="Samsung Health Screenshot"
+                class="w-full h-full object-cover rounded-lg"
+                onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+              />
+              <div class="w-full h-full flex items-center justify-center" style="display: none;">
+                <div class="text-center">
+                  <div class="w-16 h-16 bg-purple-500 rounded-full mx-auto mb-3 flex items-center justify-center">
+                    <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                    </svg>
+                  </div>
+                  <p class="text-sm text-white/80 font-medium">Samsung Health</p>
+                </div>
+              </div>
+            </div>
+            <h4 class="font-semibold text-white mb-2 text-lg">Samsung Health</h4>
+            <p class="text-white/70 text-sm">Steps: 9,876 | Calories: 1,890</p>
+          </div>
+        </div>
+
+        <div class="mt-8 text-center">
+          <p class="text-white/70 text-base mb-6">
+            <strong>Supported Apps:</strong> Apple Health, Fitbit, Samsung Health, Google Fit, MyFitnessPal, and more!
+          </p>
+          <div class="flex flex-wrap justify-center gap-3">
+            <span class="px-4 py-2 bg-cyan/20 text-cyan text-sm rounded-full font-medium">Apple Health</span>
+            <span class="px-4 py-2 bg-cyan/20 text-cyan text-sm rounded-full font-medium">Fitbit</span>
+            <span class="px-4 py-2 bg-cyan/20 text-cyan text-sm rounded-full font-medium">Samsung Health</span>
+            <span class="px-4 py-2 bg-cyan/20 text-cyan text-sm rounded-full font-medium">Google Fit</span>
+            <span class="px-4 py-2 bg-cyan/20 text-cyan text-sm rounded-full font-medium">MyFitnessPal</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
