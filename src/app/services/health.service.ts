@@ -7,7 +7,7 @@ import { HealthData } from '../models/health-data.model';
   providedIn: 'root'
 })
 export class HealthService {
-  private apiUrl = 'http://localhost:8080/api/health';
+  private apiUrl = 'http://172.210.73.43:8090/api/health';
 
   constructor(private http: HttpClient) { }
 
@@ -42,9 +42,4 @@ export class HealthService {
     return this.http.get<string[]>(`${this.apiUrl}/user/uploaded-dates`);
   }
 
-  validateToken(token: string): Observable<any> {
-    return this.http.get(`${this.apiUrl}/validate-token`, {
-      params: { token: token }
-    });
-  }
 }

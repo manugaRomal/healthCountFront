@@ -3,11 +3,13 @@ import { RouterModule, Routes } from '@angular/router';
 import { HomeComponent } from './pages/home/home.component';
 import { UploadComponent } from './pages/upload/upload.component';
 import { DashboardComponent } from './pages/dashboard/dashboard.component';
+import { RedirectComponent } from './pages/redirect/redirect.component';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
   { path: 'upload', component: UploadComponent },
   { path: 'dashboard', component: DashboardComponent },
+  { path: 'redirect', component: RedirectComponent },
   { path: '**', redirectTo: '' }
 ];
 

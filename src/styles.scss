@@ -64,22 +64,22 @@
 
 @layer components {
   .btn-primary {
-    @apply bg-dark-cyan text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-200 active:scale-95 hover:bg-dark-cyan/90;
+    @apply bg-dark-cyan text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-200 active:scale-95 hover:bg-dark-cyan/90 text-sm sm:text-base;
   }
   
   .btn-secondary {
-    @apply bg-dark-cyan/80 text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-200 active:scale-95 hover:bg-dark-cyan;
+    @apply bg-dark-cyan/80 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-200 active:scale-95 hover:bg-dark-cyan text-sm sm:text-base;
   }
   
   .card {
-    @apply bg-cyan/90 backdrop-blur-sm rounded-2xl shadow-xl border border-cyan/20 p-6 text-white;
+    @apply bg-cyan/90 backdrop-blur-sm rounded-2xl shadow-xl border border-cyan/20 p-4 sm:p-6 text-white;
   }
   
   .input-field {
-    @apply w-full px-4 py-3 rounded-xl border-2 border-grey/30 focus:border-cyan focus:outline-none transition-colors duration-200 bg-white/80;
+    @apply w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl border-2 border-grey/30 focus:border-cyan focus:outline-none transition-colors duration-200 bg-white/80 text-sm sm:text-base;
   }
   
   .stat-card {
-    @apply bg-white/90 backdrop-blur-sm rounded-xl p-4 text-center shadow-lg border border-white/20 text-dark-blue;
+    @apply bg-white/90 backdrop-blur-sm rounded-xl p-3 sm:p-4 text-center shadow-lg border border-white/20 text-dark-blue;
   }
 }

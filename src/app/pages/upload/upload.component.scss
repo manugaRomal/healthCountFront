@@ -1,1 +1,23 @@
 // Upload component styles
+
+// Highlight effect for manual form when it appears
+.highlight-manual-form {
+  animation: highlightPulse 2s ease-in-out;
+  border-color: #f97316 !important; // Orange border
+  box-shadow: 0 0 20px rgba(249, 115, 22, 0.3) !important;
+}
+
+@keyframes highlightPulse {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 20px rgba(249, 115, 22, 0.3);
+  }
+  50% {
+    transform: scale(1.02);
+    box-shadow: 0 0 30px rgba(249, 115, 22, 0.5);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 20px rgba(249, 115, 22, 0.3);
+  }
+}

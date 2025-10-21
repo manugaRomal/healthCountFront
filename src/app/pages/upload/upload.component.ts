@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { HealthService } from '../../services/health.service';
 import { AuthService } from '../../services/auth.service';
@@ -29,6 +29,8 @@ export class UploadComponent implements OnInit {
   successMessage: string = '';
   showSuccessMessage = false;
 
+  @ViewChild('manualEntryForm', { static: false }) manualEntryForm!: ElementRef;
+
   constructor(
     private healthService: HealthService,
     private authService: AuthService,
@@ -39,9 +41,15 @@ export class UploadComponent implements OnInit {
     this.maxDate = new Date().toISOString().split('T')[0]; // Set max date to today
     this.selectedDate = this.maxDate; // Set to today
     
-    this.authService.checkForUrlToken();
-    
-    this.loadUploadedDates();
+    // Only proceed if user is already authenticated
+    this.authService.isAuthenticated().subscribe(isAuth => {
+      if (isAuth) {
+        this.loadUploadedDates();
+      } else {
+        // If not authenticated, try to ensure valid session
+        this.authService.ensureValidSession();
+      }
+    });
   }
 
 
@@ -96,36 +104,45 @@ export class UploadComponent implements OnInit {
   onSubmit(): void {
     if (this.selectedFile) {
       
-      if (!this.authService.isAuthenticated()) {
-        this.errorMessage = 'No valid authentication token found. Please ensure you are properly authenticated.';
-        return;
-      }
+      this.authService.isAuthenticated().subscribe(isAuth => {
+        if (!isAuth) {
+          this.errorMessage = 'No valid authentication token found. Please ensure you are properly authenticated.';
+          return;
+        }
+        
+        // Continue with file upload logic here
+        this.isUploading = true;
+        this.errorMessage = '';
 
-      this.isUploading = true;
-      this.errorMessage = '';
-
-      this.healthService.uploadImage(this.selectedFile, this.selectedDate).subscribe({
-        next: (data: HealthData) => {
+        this.healthService.uploadImage(this.selectedFile!, this.selectedDate).subscribe({
+        next: (response: any) => {
           this.isUploading = false;
-          this.ocrResult = data;
           
-          // Refresh uploaded dates after successful upload
-          this.loadUploadedDates();
-          
-          if (this.isOcrDataEmpty(data)) {
+          // Check if backend requires manual entry
+          if (response.requiresManualEntry) {
+            this.ocrResult = response.data;
             this.showManualEntry = true;
-            this.manualSteps = data.steps || 0;
-            this.manualCalories = data.calories || 0;
+            this.manualSteps = response.data.steps || 0;
+            this.manualCalories = response.data.calories || 0;
+            
+            // Auto-scroll to manual form after it appears
+            this.scrollToManualForm();
           } else {
-           
-            const steps = data.steps ? Math.round(data.steps).toLocaleString() : '0';
-            const calories = data.calories ? Math.round(data.calories).toLocaleString() : '0';
+            // OCR succeeded - data was saved to database
+            this.ocrResult = response;
+            
+            // Refresh uploaded dates after successful upload
+            this.loadUploadedDates();
+            
+            // Show success message
+            const steps = response.steps ? Math.round(response.steps).toLocaleString() : '0';
+            const calories = response.calories ? Math.round(response.calories).toLocaleString() : '0';
             this.showSuccessMsg(`Your Data extracted successfully! Steps: ${steps}, Calories: ${calories}`);
             
             setTimeout(() => {
               this.router.navigate(['/dashboard'], { 
                 state: { 
-                  data: data,
+                  data: response,
                   isNewUpload: true 
                 } 
               });
@@ -147,16 +164,18 @@ export class UploadComponent implements OnInit {
           }
         }
       });
+      });
     }
   }
 
   isOcrDataEmpty(data: HealthData): boolean {
-    
-    return (!data.steps || data.steps === 0) && (!data.calories || data.calories === 0);
+    // Only check if calories are missing - steps can be null/0
+    return (!data.calories || data.calories === 0);
   }
 
   onManualSubmit(): void {
-    if (this.manualSteps > 0 && this.manualCalories > 0) {
+    // Only require calories, steps can be 0
+    if (this.manualCalories > 0) {
       this.isUploading = true;
       this.errorMessage = '';
 
@@ -196,7 +215,7 @@ export class UploadComponent implements OnInit {
         }
       });
     } else {
-      this.errorMessage = 'Please enter valid steps and calories values.';
+      this.errorMessage = 'Please enter valid calories value. Steps are optional.';
     }
   }
 
@@ -238,5 +257,37 @@ export class UploadComponent implements OnInit {
 
   goBack(): void {
     this.router.navigate(['/']);
+  }
+
+  // Auto-scroll to manual form when it appears
+  private scrollToManualForm(): void {
+    // Use setTimeout to ensure the DOM has updated
+    setTimeout(() => {
+      if (this.manualEntryForm) {
+        this.manualEntryForm.nativeElement.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start',
+          inline: 'nearest'
+        });
+        
+        // Optional: Add a subtle highlight effect
+        this.highlightManualForm();
+      }
+    }, 100); // Small delay to ensure form is rendered
+  }
+
+  // Optional: Add highlight effect
+  private highlightManualForm(): void {
+    if (this.manualEntryForm) {
+      const element = this.manualEntryForm.nativeElement;
+      
+      // Add highlight class
+      element.classList.add('highlight-manual-form');
+      
+      // Remove highlight after animation
+      setTimeout(() => {
+        element.classList.remove('highlight-manual-form');
+      }, 2000);
+    }
   }
 }

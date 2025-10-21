@@ -25,10 +25,15 @@ export class DashboardComponent implements OnInit {
     // Get user email from JWT token using AuthService
     this.username = this.authService.getUserEmail() || 'user';
     
-    // Check for token in URL (for Clienta integration)
-    this.authService.checkForUrlToken();
-    
-    this.loadHealthData();
+    // Only proceed if user is already authenticated
+    this.authService.isAuthenticated().subscribe(isAuth => {
+      if (isAuth) {
+        this.loadHealthData();
+      } else {
+        // If not authenticated, try to ensure valid session
+        this.authService.ensureValidSession();
+      }
+    });
   }
 
   loadHealthData(): void {
@@ -69,10 +74,6 @@ export class DashboardComponent implements OnInit {
 
   goToUpload(): void {
     this.router.navigate(['/upload']);
-  }
-
-  goHome(): void {
-    this.router.navigate(['/']);
   }
 
   formatValue(value: number | null): string {

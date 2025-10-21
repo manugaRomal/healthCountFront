@@ -1,20 +1,20 @@
 <div class="min-h-screen flex flex-col">
   <app-header></app-header>
   
-  <main class="flex-1 px-4 py-6">
+  <main class="flex-1 px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
     <!-- Header -->
-    <div class="flex items-center justify-between mb-6">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 sm:mb-6 space-y-3 sm:space-y-0">
       <div>
-        <h1 class="text-2xl font-bold text-white">Dashboard</h1>
-        <p class="text-white/80">
+        <h1 class="text-xl sm:text-2xl font-bold text-white">Dashboard</h1>
+        <p class="text-white/80 text-sm sm:text-base">
           <span *ngIf="username; else noUser">{{ username }} - Securely connected via Clienta app</span>
           <ng-template #noUser>Welcome back! Securely connected via Clienta app</ng-template>
         </p>
       </div>
       <button 
         (click)="goToUpload()"
-        class="btn-primary flex items-center space-x-2">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        class="btn-primary flex items-center justify-center space-x-2 w-full sm:w-auto">
+        <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
         </svg>
         <span>Add Data</span>
@@ -27,123 +27,91 @@
     </div>
 
     <!-- Dashboard Content -->
-    <div *ngIf="!isLoading" class="space-y-6">
+    <div *ngIf="!isLoading" class="space-y-4 sm:space-y-6">
       <!-- Calories Overview -->
-      <div class="bg-gradient-to-br from-cyan/95 to-dark-cyan/90 backdrop-blur-sm rounded-2xl shadow-xl border border-cyan/30 p-6 text-white">
-        <h2 class="text-xl font-semibold text-white mb-4 flex items-center">
-          <svg class="w-6 h-6 text-white mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <div class="bg-gradient-to-br from-cyan/95 to-dark-cyan/90 backdrop-blur-sm rounded-2xl shadow-xl border border-cyan/30 p-4 sm:p-6 text-white">
+        <h2 class="text-lg sm:text-xl font-semibold text-white mb-3 sm:mb-4 flex items-center">
+          <svg class="w-5 h-5 sm:w-6 sm:h-6 text-white mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
           </svg>
-          Calories Overview
+          Calories Overview ({{ totalStats?.totalUploads || 0 }} uploads)
         </h2>
         
-        <div *ngIf="totalStats && totalStats.totalUploads > 0; else noUploads" class="grid grid-cols-2 gap-4">
-          <div class="bg-white/20 backdrop-blur-sm rounded-xl p-4 text-center shadow-lg border border-white/30">
-            <div class="text-3xl font-bold text-white mb-1">{{ formatValue(totalStats.totalCalories) }}</div>
-            <div class="text-sm text-white/80">Total Calories</div>
+        <div *ngIf="totalStats && totalStats.totalUploads > 0; else noUploads" class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+          <div class="bg-white/20 backdrop-blur-sm rounded-xl p-3 sm:p-4 text-center shadow-lg border border-white/30">
+            <div class="text-lg sm:text-2xl font-bold text-white mb-1">{{ formatValue(totalStats.totalSteps) }}</div>
+            <div class="text-xs sm:text-sm text-white/80">Total Steps</div>
           </div>
-          <div class="bg-white/20 backdrop-blur-sm rounded-xl p-4 text-center shadow-lg border border-white/30">
-            <div class="text-3xl font-bold text-white mb-1">{{ formatValue(totalStats.averageCalories) }}</div>
-            <div class="text-sm text-white/80">Average Calories</div>
+          <div class="bg-white/20 backdrop-blur-sm rounded-xl p-3 sm:p-4 text-center shadow-lg border border-white/30">
+            <div class="text-lg sm:text-2xl font-bold text-white mb-1">{{ formatValue(totalStats.totalCalories) }}</div>
+            <div class="text-xs sm:text-sm text-white/80">Total Calories</div>
+          </div>
+          <div class="bg-white/20 backdrop-blur-sm rounded-xl p-3 sm:p-4 text-center shadow-lg border border-white/30">
+            <div class="text-lg sm:text-2xl font-bold text-white mb-1">{{ formatValue(totalStats.averageSteps) }}</div>
+            <div class="text-xs sm:text-sm text-white/80">Avg Steps</div>
+          </div>
+          <div class="bg-white/20 backdrop-blur-sm rounded-xl p-3 sm:p-4 text-center shadow-lg border border-white/30">
+            <div class="text-lg sm:text-2xl font-bold text-white mb-1">{{ formatValue(totalStats.averageCalories) }}</div>
+            <div class="text-xs sm:text-sm text-white/80">Avg Calories</div>
           </div>
         </div>
         
         <ng-template #noUploads>
-          <div class="text-center py-8">
-            <div class="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
-              <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div class="text-center py-6 sm:py-8">
+            <div class="w-12 h-12 sm:w-16 sm:h-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-3 sm:mb-4">
+              <svg class="w-6 h-6 sm:w-8 sm:h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
               </svg>
             </div>
-            <h3 class="text-lg font-semibold text-white mb-2">No calories data yet</h3>
-            <p class="text-white/80 mb-4">Upload your first fitness screenshot to start tracking calories!</p>
-            <button (click)="goToUpload()" class="btn-primary">
+            <h3 class="text-base sm:text-lg font-semibold text-white mb-2">No calories data yet</h3>
+            <p class="text-white/80 mb-3 sm:mb-4 text-sm sm:text-base">Upload your first fitness screenshot to start tracking calories!</p>
+            <button (click)="goToUpload()" class="btn-primary text-sm sm:text-base">
               Upload Data
             </button>
           </div>
         </ng-template>
       </div>
 
-      <!-- Total Stats -->
-      <div *ngIf="totalStats" class="bg-gradient-to-r from-dark-grey/90 to-grey/80 backdrop-blur-sm rounded-2xl shadow-xl border border-grey/30 p-6 text-white">
-        <h2 class="text-xl font-semibold text-white mb-4 flex items-center">
-          <svg class="w-6 h-6 text-cyan mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
-          </svg>
-          Total Stats ({{ totalStats.totalUploads }} uploads)
-        </h2>
-        
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div class="bg-white/20 backdrop-blur-sm rounded-xl p-4 text-center shadow-lg border border-white/30">
-            <div class="text-2xl font-bold text-white mb-1">{{ formatValue(totalStats.totalSteps) }}</div>
-            <div class="text-sm text-white/80">Total Steps</div>
-          </div>
-          <div class="bg-white/20 backdrop-blur-sm rounded-xl p-4 text-center shadow-lg border border-white/30">
-            <div class="text-2xl font-bold text-white mb-1">{{ formatValue(totalStats.totalCalories) }}</div>
-            <div class="text-sm text-white/80">Total Calories</div>
-          </div>
-          <div class="bg-white/20 backdrop-blur-sm rounded-xl p-4 text-center shadow-lg border border-white/30">
-            <div class="text-2xl font-bold text-white mb-1">{{ formatValue(totalStats.averageSteps) }}</div>
-            <div class="text-sm text-white/80">Avg Steps</div>
-          </div>
-          <div class="bg-white/20 backdrop-blur-sm rounded-xl p-4 text-center shadow-lg border border-white/30">
-            <div class="text-2xl font-bold text-white mb-1">{{ formatValue(totalStats.averageCalories) }}</div>
-            <div class="text-sm text-white/80">Avg Calories</div>
-          </div>
-        </div>
-      </div>
-
       <!-- All Uploads -->
-      <div *ngIf="healthData.length > 0" class="bg-gradient-to-br from-cyan/95 to-dark-cyan/90 backdrop-blur-sm rounded-2xl shadow-xl border border-cyan/30 p-6 text-white">
-        <h2 class="text-xl font-semibold text-white mb-4 flex items-center">
-          <svg class="w-6 h-6 text-white mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <div *ngIf="healthData.length > 0" class="bg-gradient-to-br from-cyan/95 to-dark-cyan/90 backdrop-blur-sm rounded-2xl shadow-xl border border-cyan/30 p-4 sm:p-6 text-white">
+        <h2 class="text-lg sm:text-xl font-semibold text-white mb-3 sm:mb-4 flex items-center">
+          <svg class="w-5 h-5 sm:w-6 sm:h-6 text-white mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
           </svg>
           All Uploads ({{ healthData.length }})
         </h2>
         
-        <div class="space-y-3 max-h-96 overflow-y-auto">
+        <div class="space-y-2 sm:space-y-3 max-h-80 sm:max-h-96 overflow-y-auto">
           <div *ngFor="let data of healthData; let i = index" 
-               class="flex items-center justify-between p-3 bg-white/20 rounded-xl backdrop-blur-sm border border-white/30">
-            <div class="flex items-center space-x-3">
-              <div class="w-10 h-10 bg-gradient-to-br from-dark-cyan/40 to-cyan/30 rounded-xl flex items-center justify-center shadow-lg">
-                <span class="text-sm font-bold text-white">#{{ i + 1 }}</span>
+               class="flex items-center justify-between p-2 sm:p-3 bg-white/20 rounded-xl backdrop-blur-sm border border-white/30">
+            <div class="flex items-center space-x-2 sm:space-x-3 min-w-0 flex-1">
+              <div class="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-dark-cyan/40 to-cyan/30 rounded-xl flex items-center justify-center shadow-lg flex-shrink-0">
+                <span class="text-xs sm:text-sm font-bold text-white">#{{ i + 1 }}</span>
               </div>
-              <div>
-                <p class="font-medium text-white">Upload #{{ i + 1 }}</p>
-                <p class="text-sm text-white/80">{{ formatValue(data.steps) }} steps</p>
-                <p class="text-sm text-white/80">{{ formatKcal(data.calories) }} kcal</p>
-                <p class="text-xs text-white/60">{{ formatDate(data.date) }}</p>
+              <div class="min-w-0 flex-1">
+                <p class="text-xs sm:text-sm text-white">{{ formatCalories(data.calories) }} calories</p>
+                <p class="text-xs sm:text-sm text-white">{{ formatValue(data.steps) }} steps</p>
+                <p class="text-xs text-white">{{ formatDate(data.date) }}</p>
               </div>
-            </div>
-            <div class="text-right">
-              <p class="text-sm font-medium text-white">{{ formatCalories(data.calories) }}</p>
-              <p class="text-xs text-white/70">calories</p>
             </div>
           </div>
         </div>
       </div>
 
       <!-- Empty State -->
-      <div *ngIf="healthData.length === 0" class="bg-gradient-to-r from-dark-grey/90 to-grey/80 backdrop-blur-sm rounded-2xl shadow-xl border border-grey/30 p-6 text-white text-center py-12">
-        <div class="w-20 h-20 bg-gradient-to-br from-cyan/30 to-dark-cyan/40 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-lg">
-          <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <div *ngIf="healthData.length === 0" class="bg-gradient-to-r from-dark-grey/90 to-grey/80 backdrop-blur-sm rounded-2xl shadow-xl border border-grey/30 p-4 sm:p-6 text-white text-center py-8 sm:py-12">
+        <div class="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-cyan/30 to-dark-cyan/40 rounded-3xl flex items-center justify-center mx-auto mb-4 sm:mb-6 shadow-lg">
+          <svg class="w-8 h-8 sm:w-10 sm:h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
           </svg>
         </div>
-        <h3 class="text-xl font-semibold text-white mb-2">Start Your Health Journey</h3>
-        <p class="text-white/80 mb-6">Upload your first fitness screenshot to begin tracking your progress</p>
-        <button (click)="goToUpload()" class="btn-primary">
+        <h3 class="text-lg sm:text-xl font-semibold text-white mb-2">Start Your Health Journey</h3>
+        <p class="text-white/80 mb-4 sm:mb-6 text-sm sm:text-base">Upload your first fitness screenshot to begin tracking your progress</p>
+        <button (click)="goToUpload()" class="btn-primary text-sm sm:text-base">
           Upload First Data
         </button>
       </div>
     </div>
 
-    <!-- Bottom Navigation -->
-    <div class="flex justify-center mt-8">
-      <button (click)="goHome()" class="btn-secondary">
-        Back to Home
-      </button>
-    </div>
   </main>
 </div>

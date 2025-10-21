@@ -13,6 +13,10 @@ export class HomeComponent implements OnInit {
   userEmail: string = '';
   healthData: HealthData[] = [];
   isLoading = false;
+  
+  // Modal state
+  isModalOpen = false;
+  selectedAppType = '';
 
   constructor(
     private router: Router,
@@ -23,12 +27,19 @@ export class HomeComponent implements OnInit {
   ngOnInit(): void {
     this.userEmail = this.authService.getUserEmail() || '';
     
-    // Check for token in URL (for Clienta integration)
-    this.authService.checkForUrlToken();
     
-    if (this.authService.isAuthenticated()) {
-      this.loadHealthData();
-    }
+    this.authService.isAuthenticated().subscribe(isAuth => {
+      if (isAuth) {
+        this.loadHealthData();
+      } else {
+        // You need to provide the clienta key and email here
+        // These should come from your clienta integration
+        const clientaKey = 'your-clienta-integration-key'; // Replace with actual key
+        const clientaEmail = 'user@example.com'; // Replace with actual email or get from clienta
+        
+        this.authService.ensureValidSession(clientaKey, clientaEmail);
+      }
+    });
   }
 
   goToUpload(): void {
@@ -54,8 +65,17 @@ export class HomeComponent implements OnInit {
     });
   }
 
+  getTotalSteps(): number {
+    return this.healthData.reduce((total, data) => total + (data.steps || 0), 0);
+  }
+
   getTotalCalories(): number {
     return this.healthData.reduce((total, data) => total + (data.calories || 0), 0);
+  }
+
+  getAverageSteps(): number {
+    if (this.healthData.length === 0) return 0;
+    return this.getTotalSteps() / this.healthData.length;
   }
 
   getAverageCalories(): number {
@@ -76,5 +96,16 @@ export class HomeComponent implements OnInit {
   formatKcal(calories: number | null): string {
     if (!calories) return '0.00';
     return this.convertCaloriesToKcal(calories).toFixed(2);
+  }
+
+  // Modal methods
+  openScreenshotModal(appType: string): void {
+    this.selectedAppType = appType;
+    this.isModalOpen = true;
+  }
+
+  closeScreenshotModal(): void {
+    this.isModalOpen = false;
+    this.selectedAppType = '';
   }
 }

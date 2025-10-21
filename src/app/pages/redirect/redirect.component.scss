@@ -1,0 +1,20 @@
+// Additional styles if needed
+.backdrop-blur-lg {
+  backdrop-filter: blur(16px);
+}
+
+// Smooth animations
+button {
+  transition: all 0.2s ease-in-out;
+}
+
+button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+// Focus states
+button:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5);
+}

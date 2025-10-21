@@ -1,4 +1,8 @@
 import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable, of } from 'rxjs';
+import { map, catchError } from 'rxjs/operators';
+import { Router } from '@angular/router';
 import { HealthService } from './health.service';
 
 @Injectable({
@@ -6,7 +10,9 @@ import { HealthService } from './health.service';
 })
 export class AuthService {
 
-  constructor(private healthService: HealthService) { }
+  private apiUrl = 'http://172.210.73.43:8090/api/health';
+
+  constructor(private http: HttpClient, private healthService: HealthService, private router: Router) { }
 
   getToken(): string | null {
     return localStorage.getItem('jwt_token');
@@ -21,21 +27,26 @@ export class AuthService {
   }
 
  
-  isAuthenticated(): boolean {
+  isAuthenticated(): Observable<boolean> {
     const token = this.getToken();
     if (!token) {
-      return false;
+      return of(false);
     }
 
     try {
       const payload = this.decodeTokenPayload(token);
       const currentTime = Math.floor(Date.now() / 1000);
       
-      // Check if token is expired
-      return payload.exp > currentTime;
+      if (payload.exp <= currentTime) {
+        return of(false);
+      }
     } catch (error) {
-      return false;
+      return of(false);
     }
+    return this.validateTokenViaBearer(token).pipe(
+      map(response => response.valid),
+      catchError(() => of(false))
+    );
   }
 
   getUserEmail(): string | null {
@@ -53,84 +64,51 @@ export class AuthService {
     }
   }
 
-  getUserName(): string | null {
-    try {
-      const token = this.getToken();
-      if (!token) {
-        return null;
-      }
-
-      const payload = this.decodeTokenPayload(token);
-      return payload.name || null;
-    } catch (error) {
-      console.error('Error extracting name from token:', error);
-      return null;
-    }
-  }
-
-  getUserInfo(): any {
-    try {
-      const token = this.getToken();
-      if (!token) {
-        return null;
-      }
-
-      return this.decodeTokenPayload(token);
-    } catch (error) {
-      console.error('Error extracting user info from token:', error);
-      return null;
-    }
-  }
-
   private decodeTokenPayload(token: string): any {
     const payload = token.split('.')[1];
     return JSON.parse(atob(payload));
   }
 
+  initiateClientaHandshake(key: string, email: string): void {
+    const headers = {
+      'key': key,
+      'email': email
+    };
 
-  isTokenExpired(): boolean {
-    try {
-      const token = this.getToken();
-      if (!token) {
-        return true;
+    this.http.get(`${this.apiUrl}/validate-clienta`, { headers }).subscribe({
+      next: (response: any) => {
+        if (response?.valid && response?.token) {
+          this.setToken(response.token);
+          console.log('Clienta handshake success for user:', response.user);
+        } else {
+          this.handleInvalidToken();
+        }
+      },
+      error: (error) => {
+        console.error('Clienta handshake failed:', error);
+        this.handleInvalidToken();
       }
-
-      const payload = this.decodeTokenPayload(token);
-      const currentTime = Math.floor(Date.now() / 1000);
-      
-      return payload.exp <= currentTime;
-    } catch (error) {
-      return true;
-    }
+    });
   }
 
-  getTokenExpirationDate(): Date | null {
-    try {
-      const token = this.getToken();
-      if (!token) {
-        return null;
+  ensureValidSession(key?: string, email?: string): void {
+    const existing = this.getToken();
+    if (existing) {
+      this.validateTokenWithBackend(existing);
+    } else {
+      if (key && email) {
+        this.initiateClientaHandshake(key, email);
+      } else {
+        console.error('Cannot initiate clienta handshake: missing key or email');
+        this.handleInvalidToken();
       }
-
-      const payload = this.decodeTokenPayload(token);
-      return new Date(payload.exp * 1000);
-    } catch (error) {
-      return null;
-    }
-  }
-
-  // Token validation from URL (for Clienta integration)
-  checkForUrlToken(): void {
-    const urlParams = new URLSearchParams(window.location.search);
-    const token = urlParams.get('token');
-    
-    if (token) {
-      this.validateTokenWithBackend(token);
-      this.cleanUrl();
     }
   }
 
   validateTokenWithBackend(token: string): void {
-    this.healthService.validateToken(token).subscribe({
+    const validationMethod = this.validateTokenViaBearer(token);
+    
+    validationMethod.subscribe({
       next: (response) => {
         if (response.valid) {
           this.setToken(token);
@@ -146,14 +124,18 @@ export class AuthService {
     });
   }
 
-  cleanUrl(): void {
-    const url = new URL(window.location.href);
-    url.searchParams.delete('token');
-    window.history.replaceState({}, document.title, url.toString());
+  
+  validateTokenViaBearer(token: string): Observable<any> {
+    return this.http.get(`${this.apiUrl}/validate-token`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
   }
 
   handleInvalidToken(): void {
     console.error('Invalid or expired token. Please try again.');
-    // Could emit an event or show a notification here
+    this.router.navigate(['/redirect']);
+  }
+  authenticateWithClienta(key: string, email: string): void {
+    this.initiateClientaHandshake(key, email);
   }
 }
