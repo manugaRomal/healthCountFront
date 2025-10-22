@@ -10,10 +10,13 @@ export class AuthInterceptor implements HttpInterceptor {
     const token = localStorage.getItem('jwt_token');
     
     if (token && this.needsAuth(req.url)) {
+      console.log('Adding Authorization header to:', req.url);
       const authReq = req.clone({
         headers: req.headers.set('Authorization', `Bearer ${token}`)
       });
       return next.handle(authReq);
+    } else if (this.needsAuth(req.url)) {
+      console.log('No token found for protected endpoint:', req.url);
     }
     
     return next.handle(req);
@@ -23,6 +26,7 @@ export class AuthInterceptor implements HttpInterceptor {
     const protectedEndpoints = [
       '/api/health/upload',
       '/api/health/user/current',
+      '/api/health/user/uploaded-dates',
       '/api/health/stats'
     ];
     

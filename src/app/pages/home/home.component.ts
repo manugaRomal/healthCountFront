@@ -27,17 +27,18 @@ export class HomeComponent implements OnInit {
   ngOnInit(): void {
     this.userEmail = this.authService.getUserEmail() || '';
     
-    
     this.authService.isAuthenticated().subscribe(isAuth => {
       if (isAuth) {
         this.loadHealthData();
       } else {
-        // You need to provide the clienta key and email here
-        // These should come from your clienta integration
-        const clientaKey = 'your-clienta-integration-key'; // Replace with actual key
-        const clientaEmail = 'user@example.com'; // Replace with actual email or get from clienta
-        
-        this.authService.ensureValidSession(clientaKey, clientaEmail);
+        // Check for clienta headers first, then fallback to manual authentication
+        this.authService.checkClientaHeadersAndAuthenticate().subscribe(hasClientaHeaders => {
+          if (!hasClientaHeaders) {
+            // No clienta headers found, redirect to manual authentication
+            console.log('No clienta headers found, redirecting to manual auth...');
+            this.router.navigate(['/redirect']);
+          }
+        });
       }
     });
   }

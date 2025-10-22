@@ -11,6 +11,7 @@ import { HealthService } from './health.service';
 export class AuthService {
 
   private apiUrl = 'http://172.210.73.43:8090/api/health';
+    //  private apiUrl = 'http://localhost:8080/api/health';
 
   constructor(private http: HttpClient, private healthService: HealthService, private router: Router) { }
 
@@ -20,6 +21,7 @@ export class AuthService {
 
   setToken(token: string): void {
     localStorage.setItem('jwt_token', token);
+    console.log('Token saved to localStorage:', token.substring(0, 20) + '...');
   }
 
   removeToken(): void {
@@ -137,5 +139,25 @@ export class AuthService {
   }
   authenticateWithClienta(key: string, email: string): void {
     this.initiateClientaHandshake(key, email);
+  }
+
+
+  checkClientaHeadersAndAuthenticate(): Observable<boolean> {
+    return this.http.get(`${this.apiUrl}/clienta-headers`).pipe(
+      map((response: any) => {
+        if (response.hasHeaders && response.key && response.email) {
+          console.log('Clienta headers found, initiating authentication...');
+          this.initiateClientaHandshake(response.key, response.email);
+          return true;
+        } else {
+          console.log('No clienta headers found');
+          return false;
+        }
+      }),
+      catchError((error) => {
+        console.error('Error checking clienta headers:', error);
+        return of(false);
+      })
+    );
   }
 }

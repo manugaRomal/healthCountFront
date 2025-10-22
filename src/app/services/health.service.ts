@@ -8,7 +8,7 @@ import { HealthData } from '../models/health-data.model';
 })
 export class HealthService {
   private apiUrl = 'http://172.210.73.43:8090/api/health';
-
+    // private apiUrl = 'http://localhost:8080/api/health';
   constructor(private http: HttpClient) { }
 
 
